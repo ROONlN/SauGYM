@@ -13,6 +13,11 @@ namespace SauGYM.Controllers
             _logger = logger;
         }
 
+        public IActionResult TrainerSearch()
+        {
+            return View();
+        }
+
         public IActionResult Index()
         {
             return View();
