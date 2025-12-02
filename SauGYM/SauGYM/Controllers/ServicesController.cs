@@ -1,33 +1,33 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using SauGYM.Data;
 using SauGYM.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SauGYM.Controllers
 {
     [Authorize(Roles = "Admin")]
-    public class TrainersController : Controller
+    public class ServicesController : Controller
     {
         private readonly ApplicationDbContext _context;
 
-        public TrainersController(ApplicationDbContext context)
+        public ServicesController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // GET: Trainers
+        // GET: Services
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Trainers.ToListAsync());
+            return View(await _context.Services.ToListAsync());
         }
 
-        // GET: Trainers/Details/5
+        // GET: Services/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -35,40 +35,39 @@ namespace SauGYM.Controllers
                 return NotFound();
             }
 
-            var trainer = await _context.Trainers
-                .FirstOrDefaultAsync(m => m.TrainerId == id);
-            if (trainer == null)
+            var service = await _context.Services
+                .FirstOrDefaultAsync(m => m.ServiceId == id);
+            if (service == null)
             {
                 return NotFound();
             }
 
-            return View(trainer);
+            return View(service);
         }
 
-        // GET: Trainers/Create
+        // GET: Services/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Trainers/Create
+        // POST: Services/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("TrainerId,FullName,Specialization,ImageUrl,WorkingHours")] Trainer trainer)
+        public async Task<IActionResult> Create([Bind("ServiceId,ServiceName,Duration,Price")] Service service)
         {
-            ModelState.Remove("Appointments");
             if (ModelState.IsValid)
             {
-                _context.Add(trainer);
+                _context.Add(service);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(trainer);
+            return View(service);
         }
 
-        // GET: Trainers/Edit/5
+        // GET: Services/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -76,22 +75,22 @@ namespace SauGYM.Controllers
                 return NotFound();
             }
 
-            var trainer = await _context.Trainers.FindAsync(id);
-            if (trainer == null)
+            var service = await _context.Services.FindAsync(id);
+            if (service == null)
             {
                 return NotFound();
             }
-            return View(trainer);
+            return View(service);
         }
 
-        // POST: Trainers/Edit/5
+        // POST: Services/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("TrainerId,FullName,Specialization,ImageUrl,WorkingHours")] Trainer trainer)
+        public async Task<IActionResult> Edit(int id, [Bind("ServiceId,ServiceName,Duration,Price")] Service service)
         {
-            if (id != trainer.TrainerId)
+            if (id != service.ServiceId)
             {
                 return NotFound();
             }
@@ -100,12 +99,12 @@ namespace SauGYM.Controllers
             {
                 try
                 {
-                    _context.Update(trainer);
+                    _context.Update(service);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!TrainerExists(trainer.TrainerId))
+                    if (!ServiceExists(service.ServiceId))
                     {
                         return NotFound();
                     }
@@ -116,10 +115,10 @@ namespace SauGYM.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(trainer);
+            return View(service);
         }
 
-        // GET: Trainers/Delete/5
+        // GET: Services/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -127,34 +126,34 @@ namespace SauGYM.Controllers
                 return NotFound();
             }
 
-            var trainer = await _context.Trainers
-                .FirstOrDefaultAsync(m => m.TrainerId == id);
-            if (trainer == null)
+            var service = await _context.Services
+                .FirstOrDefaultAsync(m => m.ServiceId == id);
+            if (service == null)
             {
                 return NotFound();
             }
 
-            return View(trainer);
+            return View(service);
         }
 
-        // POST: Trainers/Delete/5
+        // POST: Services/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var trainer = await _context.Trainers.FindAsync(id);
-            if (trainer != null)
+            var service = await _context.Services.FindAsync(id);
+            if (service != null)
             {
-                _context.Trainers.Remove(trainer);
+                _context.Services.Remove(service);
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool TrainerExists(int id)
+        private bool ServiceExists(int id)
         {
-            return _context.Trainers.Any(e => e.TrainerId == id);
+            return _context.Services.Any(e => e.ServiceId == id);
         }
     }
 }
