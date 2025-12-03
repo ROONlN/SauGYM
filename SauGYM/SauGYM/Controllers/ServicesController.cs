@@ -58,6 +58,7 @@ namespace SauGYM.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ServiceId,ServiceName,Duration,Price")] Service service)
         {
+            ModelState.Remove("Appointments");
             if (ModelState.IsValid)
             {
                 _context.Add(service);
