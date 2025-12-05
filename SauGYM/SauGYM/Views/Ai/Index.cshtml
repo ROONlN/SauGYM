@@ -1,0 +1,68 @@
+﻿@{
+    ViewData["Title"] = "AI Antrenör";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-primary text-white text-center">
+                    <h3>🤖 Yapay Zeka (AI) Destekli Antrenör</h3>
+                    <p class="mb-0">Vücut bilgilerinizi girin, size özel program hazırlayalım!</p>
+                </div>
+                <div class="card-body p-4">
+
+                    <form asp-action="GetAdvice" method="post">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Yaşınız</label>
+                                <input type="number" name="age" class="form-control" placeholder="Örn: 22" value="@ViewBag.Age" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Cinsiyet</label>
+                                <select name="gender" class="form-select">
+                                    <option value="Erkek">Erkek</option>
+                                    <option value="Kadın">Kadın</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Boy (cm)</label>
+                                <input type="number" name="height" class="form-control" placeholder="Örn: 180" value="@ViewBag.Height" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Kilo (kg)</label>
+                                <input type="number" step="0.1" name="weight" class="form-control" placeholder="Örn: 75.5" value="@ViewBag.Weight" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Hedefiniz Nedir?</label>
+                            <select name="goal" class="form-select">
+                                <option value="Kilo Vermek">Kilo Vermek (Yağ Yakımı)</option>
+                                <option value="Kas Yapmak">Kas Yapmak (Hacim Kazanma)</option>
+                                <option value="Fit Olmak">Daha Fit ve Enerjik Olmak</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-success w-100 py-2 fw-bold">
+                            ✨ Tavsiye Oluştur
+                        </button>
+                    </form>
+
+                    @if (ViewBag.AiResponse != null)
+                    {
+                        <div class="alert alert-info mt-4">
+                            <h5 class="alert-heading"><i class="bi bi-robot"></i> AI Antrenörün Tavsiyesi:</h5>
+                            <hr>
+                            <p style="white-space: pre-line;">@ViewBag.AiResponse</p>
+                        </div>
+                    }
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
