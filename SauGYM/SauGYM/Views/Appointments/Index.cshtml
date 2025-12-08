@@ -1,59 +1,59 @@
 ﻿@model IEnumerable<SauGYM.Models.Appointment>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Tüm Randevular (Admin)";
 }
 
-<h1>Index</h1>
+<div class="container mt-5">
+    <h2 class="text-danger mb-4">👮‍♂️ Yönetim Paneli: Randevu Listesi</h2>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.AppointmentDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Status)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Service)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Trainer)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.AppUser)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.AppointmentDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Status)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Service.ServiceName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Trainer.FullName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.AppUser.Id)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.AppointmentId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.AppointmentId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.AppointmentId">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Tarih</th>
+                <th>Üye (Müşteri)</th>
+                <th>Antrenör</th>
+                <th>Hizmet</th>
+                <th>Durum</th>
+                <th>İşlemler</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.AppointmentDate.ToString("dd.MM.yyyy HH:mm")</td>
+                    <td>
+                        @if (item.AppUser != null)
+                        {
+                            <span>@item.AppUser.FirstName @item.AppUser.LastName</span>
+                        }
+                        else
+                        {
+
+                            <span class="text-muted">Misafir</span>
+                        }
+                    </td>
+                    <td>@item.Trainer?.FullName</td>
+                    <td>@item.Service?.ServiceName</td>
+                    <td>
+                        <span class="fw-bold">@item.Status</span>
+                    </td>
+                    <td>
+                        <form asp-action="ChangeStatus" method="post" class="d-inline">
+                            <input type="hidden" name="id" value="@item.AppointmentId" />
+                            <input type="hidden" name="status" value="Onaylandı" />
+                            <button type="submit" class="btn btn-sm btn-success">✅ Onayla</button>
+                        </form>
+
+                        <form asp-action="ChangeStatus" method="post" class="d-inline">
+                            <input type="hidden" name="id" value="@item.AppointmentId" />
+                            <input type="hidden" name="status" value="İptal" />
+                            <button type="submit" class="btn btn-sm btn-danger">❌ İptal</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

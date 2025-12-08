@@ -1,53 +1,56 @@
 ﻿@model IEnumerable<SauGYM.Models.Trainer>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Our Trainers";
 }
 
-<h1>Index</h1>
+<div class="d-flex justify-content-between align-items-center mb-5">
+    <div>
+        <h1 class="display-5 fw-bold text-white">Trainer Management</h1>
+        <p class="text-secondary">Manage your expert staff efficiently.</p>
+    </div>
+    <a asp-action="Create" class="btn btn-primary btn-lg">
+        <i class="bi bi-plus-lg"></i> Add New Trainer
+    </a>
+</div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.FullName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Specialization)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ImageUrl)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.WorkingHours)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.FullName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Specialization)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ImageUrl)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.WorkingHours)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.TrainerId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.TrainerId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.TrainerId">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<div class="row g-4">
+    @foreach (var item in Model)
+    {
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100">
+                <div class="card-body text-center p-4">
+                    <div class="mb-3">
+                        @if (!string.IsNullOrEmpty(item.ImageUrl))
+                        {
+                            <img src="@item.ImageUrl" class="rounded-circle border border-2 border-info" style="width: 100px; height: 100px; object-fit: cover;">
+                        }
+                        else
+                        {
+                            <div class="rounded-circle bg-dark d-inline-flex align-items-center justify-content-center border border-2 border-info" style="width: 100px; height: 100px;">
+                                <i class="bi bi-person-fill fs-1 text-secondary"></i>
+                            </div>
+                        }
+                    </div>
+
+                    <h4 class="card-title fw-bold mb-1">@item.FullName</h4>
+                    <p class="text-info text-uppercase small fw-bold ls-1">@item.Specialization</p>
+
+                    <hr class="border-secondary opacity-25">
+
+                    <div class="text-start mb-4">
+                        <small class="text-secondary d-block mb-1">Working Hours</small>
+                        <span class="badge bg-dark border border-secondary fw-normal">
+                            <i class="bi bi-clock me-1"></i> @item.WorkingHours
+                        </span>
+                    </div>
+
+                    <div class="d-grid gap-2 d-flex justify-content-center">
+                        <a asp-action="Edit" asp-route-id="@item.TrainerId" class="btn btn-sm btn-outline-light w-100">Edit</a>
+                        <a asp-action="Delete" asp-route-id="@item.TrainerId" class="btn btn-sm btn-outline-danger w-100">Delete</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

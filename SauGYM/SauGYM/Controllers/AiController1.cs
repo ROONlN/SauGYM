@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Text;
-using System.Text.Json;
+using System.Text.Json; // JSON işlemleri için gerekli
 
 namespace SauGYM.Controllers
 {
@@ -16,65 +16,69 @@ namespace SauGYM.Controllers
         public async Task<IActionResult> GetAdvice(int age, int height, double weight, string gender, string goal)
         {
             string answer = "";
-            string apiKey = "AIzaSyCnYpBCvfl_d9nI9X8QSQVflrooi6-JHAI"; 
 
-            // Denenecek Modellerin Listesi (Sırayla dener, hangisi tutarsa)
-            string[] modelsToTry = new[] { "gemini-1.5-flash", "gemini-pro", "gemini-1.0-pro" };
+            // 1. Google Gemini API Anahtarın (Buraya Yapıştır)
+            string apiKey = "AIzaSyCnYpBCvfl_d9nI9X8QSQVflrooi6-JHAI";
 
+            // 2. İstek Adresi (Google'ın sunucusu)
+            string apiUrl = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0:generateContent?key={apiKey}";
+
+            // 3. Prompt (Yapay Zekaya Sorulacak Soru)
             string userPrompt = $"Ben {age} yaşında, {height} cm boyunda, {weight} kg ağırlığında bir {gender} bireyim. " +
                                 $"Hedefim: {goal}. " +
                                 $"Bana samimi bir spor hocası gibi hitap et. " +
-                                $"Maddeler halinde günlük beslenme tavsiyeleri ve kısa bir egzersiz programı yaz. Türkçe cevap ver.";
+                                $"Maddeler halinde günlük beslenme tavsiyeleri ve kısa bir egzersiz programı yaz.";
 
+            // 4. JSON Verisini Hazırlama (Google'ın istediği format)
             var requestBody = new
             {
-                contents = new[] { new { parts = new[] { new { text = userPrompt } } } }
+                contents = new[]
+                {
+                    new { parts = new[] { new { text = userPrompt } } }
+                }
             };
 
-            using (var httpClient = new HttpClient())
+            string jsonContent = JsonSerializer.Serialize(requestBody);
+            var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+
+            try
             {
-                string jsonContent = JsonSerializer.Serialize(requestBody);
-                var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
-
-                // Döngü ile modelleri sırayla deniyoruz
-                foreach (var modelName in modelsToTry)
+                using (var httpClient = new HttpClient())
                 {
-                    string apiUrl = $"https://generativelanguage.googleapis.com/v1beta/models/{modelName}:generateContent?key={apiKey}";
+                    // İsteği Gönder
+                    var response = await httpClient.PostAsync(apiUrl, httpContent);
 
-                    try
+                    if (response.IsSuccessStatusCode)
                     {
-                        var response = await httpClient.PostAsync(apiUrl, httpContent);
+                        // Cevabı Oku
                         string responseString = await response.Content.ReadAsStringAsync();
 
-                        if (response.IsSuccessStatusCode)
+                        // JSON'dan cevabı ayıkla (Biraz karışık bir yapısı var, buradan çekiyoruz)
+                        using (JsonDocument doc = JsonDocument.Parse(responseString))
                         {
-                            // Başarılı olursa cevabı al ve döngüden çık
-                            using (JsonDocument doc = JsonDocument.Parse(responseString))
-                            {
-                                if (doc.RootElement.TryGetProperty("candidates", out JsonElement candidates) && candidates.GetArrayLength() > 0)
-                                {
-                                    answer = candidates[0].GetProperty("content").GetProperty("parts")[0].GetProperty("text").GetString();
-                                    answer += $"\n\n(Cevap veren model: {modelName})"; // Hangi modelin çalıştığını görelim
-                                    break; // İŞLEM TAMAM, DÖNGÜYÜ KIR
-                                }
-                            }
+                            answer = doc.RootElement
+                                .GetProperty("candidates")[0]
+                                .GetProperty("content")
+                                .GetProperty("parts")[0]
+                                .GetProperty("text")
+                                .GetString();
                         }
                     }
-                    catch
+                    else
                     {
-                        // Bu model hata verdi, bir sonrakine geç...
-                        continue;
+                        answer = "Google Gemini servisine ulaşılamadı. Hata Kodu: " + response.StatusCode;
                     }
                 }
             }
-
-            // Eğer tüm denemeler başarısız olduysa
-            if (string.IsNullOrEmpty(answer))
+            catch (Exception ex)
             {
-                answer = "⚠️ Üzgünüm, Google Gemini modellerinin hiçbiri yanıt vermedi. Lütfen API Key'ini ve internet bağlantını kontrol et.";
+                answer = "Bir hata oluştu: " + ex.Message;
             }
 
+            // Cevabı View'a taşı
             ViewBag.AiResponse = answer;
+
+            // Form verilerini koru
             ViewBag.Age = age;
             ViewBag.Height = height;
             ViewBag.Weight = weight;
