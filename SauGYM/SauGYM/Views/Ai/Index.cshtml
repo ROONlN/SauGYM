@@ -1,66 +1,110 @@
 ﻿@{
-    ViewData["Title"] = "AI Antrenör";
+    ViewData["Title"] = "AI Koç";
 }
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-lg border-0">
-                <div class="card-header bg-primary text-white text-center">
-                    <h3>🤖 Yapay Zeka (AI) Destekli Antrenör</h3>
-                    <p class="mb-0">Vücut bilgilerinizi girin, size özel program hazırlayalım!</p>
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="display-4 fw-bold text-white">AI PERSONAL TRAINER</h1>
+        <p class="lead text-secondary">Hem sana uygun programı yazsın, hem de hayalindeki vücudu çizsin.</p>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="card h-100 shadow-lg border-0 bg-dark text-white">
+                <div class="card-header bg-primary text-white text-center py-3">
+                    <h4 class="m-0"><i class="bi bi-chat-left-text"></i> Antrenman & Diyet Planı</h4>
                 </div>
                 <div class="card-body p-4">
-
-                    <form asp-action="GetAdvice" method="post">
+                    <form asp-action="GetFitnessPlan" method="post">
                         <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Yaşınız</label>
-                                <input type="number" name="age" class="form-control" placeholder="Örn: 22" value="@ViewBag.Age" required>
+                            <div class="col-6">
+                                <label class="form-label text-secondary small">Yaş</label>
+                                <input type="number" name="age" class="form-control bg-secondary text-white border-0" value="@ViewBag.Age" required placeholder="25">
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Cinsiyet</label>
-                                <select name="gender" class="form-select">
-                                    <option value="Erkek">Erkek</option>
-                                    <option value="Kadın">Kadın</option>
+                            <div class="col-6">
+                                <label class="form-label text-secondary small">Kilo (kg)</label>
+                                <input type="number" name="weight" class="form-control bg-secondary text-white border-0" value="@ViewBag.Weight" required placeholder="75">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label class="form-label text-secondary small">Boy (cm)</label>
+                                <input type="number" name="height" class="form-control bg-secondary text-white border-0" value="@ViewBag.Height" required placeholder="180">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label text-secondary small">Hedef</label>
+                                <select name="goal" class="form-select bg-secondary text-white border-0">
+                                    <option value="Kilo Vermek">Kilo Vermek</option>
+                                    <option value="Kas Yapmak">Kas Yapmak</option>
+                                    <option value="Fit Olmak">Fit Olmak</option>
                                 </select>
                             </div>
                         </div>
-
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Boy (cm)</label>
-                                <input type="number" name="height" class="form-control" placeholder="Örn: 180" value="@ViewBag.Height" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Kilo (kg)</label>
-                                <input type="number" step="0.1" name="weight" class="form-control" placeholder="Örn: 75.5" value="@ViewBag.Weight" required>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Hedefiniz Nedir?</label>
-                            <select name="goal" class="form-select">
-                                <option value="Kilo Vermek">Kilo Vermek (Yağ Yakımı)</option>
-                                <option value="Kas Yapmak">Kas Yapmak (Hacim Kazanma)</option>
-                                <option value="Fit Olmak">Daha Fit ve Enerjik Olmak</option>
-                            </select>
-                        </div>
-
-                        <button type="submit" class="btn btn-success w-100 py-2 fw-bold">
-                            ✨ Tavsiye Oluştur
+                        <button type="submit" class="btn btn-outline-primary w-100 py-2">
+                            <i class="bi bi-lightning-fill"></i> Tavsiye Al
                         </button>
                     </form>
 
-                    @if (ViewBag.AiResponse != null)
+                    @if (ViewBag.Result != null)
                     {
-                        <div class="alert alert-info mt-4">
-                            <h5 class="alert-heading"><i class="bi bi-robot"></i> AI Antrenörün Tavsiyesi:</h5>
-                            <hr>
-                            <p style="white-space: pre-line;">@ViewBag.AiResponse</p>
+                        <div class="mt-4 p-3 rounded" style="background-color: #2c3e50;">
+                            <h6 class="text-info"><i class="bi bi-robot"></i> Hocanın Tavsiyesi:</h6>
+                            <hr class="border-secondary" />
+                            <p style="white-space: pre-line; font-size: 0.95rem;">@ViewBag.Result</p>
                         </div>
                     }
+                    @if (ViewBag.Error != null)
+                    {
+                        <div class="alert alert-danger mt-3">@ViewBag.Error</div>
+                    }
+                </div>
+            </div>
+        </div>
 
+        <div class="col-lg-6">
+            <div class="card h-100 shadow-lg border-0 bg-dark text-white">
+                <div class="card-header bg-success text-white text-center py-3">
+                    <h4 class="m-0"><i class="bi bi-image"></i> Hedef Vücut Simülasyonu</h4>
+                </div>
+                <div class="card-body p-4">
+                    <p class="text-secondary small">Hedefindeki fiziğin yapay zeka tarafından çizilmiş halini gör.</p>
+
+                    <form asp-action="GenerateTransformationImage" method="post">
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label class="form-label text-secondary small">Cinsiyet</label>
+                                <select name="gender" class="form-select bg-secondary text-white border-0">
+                                    <option value="man">Erkek</option>
+                                    <option value="woman">Kadın</option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label text-secondary small">Hedef</label>
+                                <select name="goal" class="form-select bg-secondary text-white border-0">
+                                    <option value="muscular bodybuilder">Kaslı (Bodybuilder)</option>
+                                    <option value="lean athletic fit">Atletik & Fit</option>
+                                    <option value="yoga flexible body">Esnek & İnce</option>
+                                    <option value="strong powerlifter">Çok Güçlü (Powerlifter)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-outline-success w-100 py-2">
+                            <i class="bi bi-magic"></i> Fotoğrafı Oluştur
+                        </button>
+                    </form>
+
+                    @if (ViewBag.GeneratedImage != null)
+                    {
+                        <div class="mt-4 text-center">
+                            <h6 class="text-success mb-3">İşte Potansiyelin! 🔥</h6>
+                            <img src="data:image/jpeg;base64,@ViewBag.GeneratedImage" class="img-fluid rounded shadow-lg border border-success" alt="AI Generated Gym Body" />
+                            <p class="text-muted small mt-2">Yapay zeka tarafından üretilmiştir.</p>
+                        </div>
+                    }
+                    @if (ViewBag.ImageError != null)
+                    {
+                        <div class="alert alert-warning mt-3">@ViewBag.ImageError</div>
+                    }
                 </div>
             </div>
         </div>

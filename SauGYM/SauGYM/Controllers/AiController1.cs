@@ -1,87 +1,135 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Text;
-using System.Text.Json; // JSON işlemleri için gerekli
+using System.Text.Json;
 
 namespace SauGYM.Controllers
 {
     public class AiController : Controller
     {
+        private readonly HttpClient _httpClient;
+
+        public AiController()
+        {
+            _httpClient = new HttpClient();
+            // Zaman aşımını biraz artıralım, resim oluşturmak bazen 10-15 sn sürebilir.
+            _httpClient.Timeout = TimeSpan.FromSeconds(30);
+        }
+
         [HttpGet]
         public IActionResult Index()
         {
             return View();
         }
 
+        // =======================================================
+        // 1. ÖZELLİK: HAYALİNDEKİ VÜCUDU ÇİZ (Görsel Üretimi)
+        // =======================================================
         [HttpPost]
-        public async Task<IActionResult> GetAdvice(int age, int height, double weight, string gender, string goal)
+        public async Task<IActionResult> GenerateTransformationImage(string goal, string gender)
         {
-            string answer = "";
-
-            // 1. Google Gemini API Anahtarın (Buraya Yapıştır)
-            string apiKey = "AIzaSyCnYpBCvfl_d9nI9X8QSQVflrooi6-JHAI";
-
-            // 2. İstek Adresi (Google'ın sunucusu)
-            string apiUrl = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0:generateContent?key={apiKey}";
-
-            // 3. Prompt (Yapay Zekaya Sorulacak Soru)
-            string userPrompt = $"Ben {age} yaşında, {height} cm boyunda, {weight} kg ağırlığında bir {gender} bireyim. " +
-                                $"Hedefim: {goal}. " +
-                                $"Bana samimi bir spor hocası gibi hitap et. " +
-                                $"Maddeler halinde günlük beslenme tavsiyeleri ve kısa bir egzersiz programı yaz.";
-
-            // 4. JSON Verisini Hazırlama (Google'ın istediği format)
-            var requestBody = new
+            // Basit Kontrol
+            if (string.IsNullOrEmpty(goal) || string.IsNullOrEmpty(gender))
             {
-                contents = new[]
-                {
-                    new { parts = new[] { new { text = userPrompt } } }
-                }
-            };
+                ViewBag.ImageError = "Lütfen görsel oluşturmak için hedef ve cinsiyet seçin.";
+                return View("Index");
+            }
 
-            string jsonContent = JsonSerializer.Serialize(requestBody);
-            var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+            // Pollinations.ai için İngilizce prompt hazırlıyoruz.
+            // Örn: "Fit bir erkeğin lüks spor salonunda gerçekçi fotoğrafı, hedef: kas yapmak..."
+            string prompt = $"realistic fitness photo of a fit {gender} inside a luxury gym, body transformation goal: {goal}, 8k resolution, cinematic lighting, full body shot, highly detailed, motivational atmosphere";
+
+            // URL Encoding
+            string encodedPrompt = Uri.EscapeDataString(prompt);
+
+            // Pollinations.ai API (Tamamen Ücretsiz)
+            string apiUrl = $"https://image.pollinations.ai/prompt/{encodedPrompt}?width=1024&height=1024&nologo=true&seed={new Random().Next(0, 1000)}";
 
             try
             {
-                using (var httpClient = new HttpClient())
+                // Resmi sunucu tarafında indirip Base64 formatına çeviriyoruz.
+                // Bu sayede resim tarayıcıda anında görünür.
+                var imageBytes = await _httpClient.GetByteArrayAsync(apiUrl);
+                string base64Image = Convert.ToBase64String(imageBytes);
+
+                ViewBag.GeneratedImage = base64Image;
+                ViewBag.SuccessMessage = "Simülasyon görseli başarıyla oluşturuldu!";
+            }
+            catch (Exception ex)
+            {
+                ViewBag.ImageError = "Görsel servisine erişilemedi: " + ex.Message;
+            }
+
+            // Form verilerini geri gönderelim
+            ViewBag.Goal = goal;
+            ViewBag.Gender = gender;
+
+            return View("Index");
+        }
+
+        // =======================================================
+        // 2. ÖZELLİK: SPOR VE DİYET TAVSİYESİ (Metin Üretimi)
+        // =======================================================
+        [HttpPost]
+        public async Task<IActionResult> GetFitnessPlan(int weight, int height, string goal, int age)
+        {
+            // SENİN API KEY'İN (Buraya ekledim)
+            string apiKey = "AIzaSyCUOrZ40dKZwGQvf77un62st2YMB3cUgo8";
+
+            string prompt = $"{age} yaşında, {weight} kg ağırlığında, {height} cm boyunda ve amacı '{goal}' olan biri için samimi bir dille spor ve diyet tavsiyesi ver. Cevabı kısa maddeler halinde Türkçe ver.";
+
+           
+            string apiUrl = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={apiKey}";
+
+            var requestData = new
+            {
+                contents = new[]
                 {
-                    // İsteği Gönder
-                    var response = await httpClient.PostAsync(apiUrl, httpContent);
+                    new { parts = new[] { new { text = prompt } } }
+                }
+            };
 
-                    if (response.IsSuccessStatusCode)
+            var jsonContent = new StringContent(JsonSerializer.Serialize(requestData), Encoding.UTF8, "application/json");
+
+            try
+            {
+                var response = await _httpClient.PostAsync(apiUrl, jsonContent);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseString = await response.Content.ReadAsStringAsync();
+                    using var doc = JsonDocument.Parse(responseString);
+
+                    // JSON içinden cevabı çekme
+                    if (doc.RootElement.TryGetProperty("candidates", out var candidates) && candidates.GetArrayLength() > 0)
                     {
-                        // Cevabı Oku
-                        string responseString = await response.Content.ReadAsStringAsync();
-
-                        // JSON'dan cevabı ayıkla (Biraz karışık bir yapısı var, buradan çekiyoruz)
-                        using (JsonDocument doc = JsonDocument.Parse(responseString))
-                        {
-                            answer = doc.RootElement
-                                .GetProperty("candidates")[0]
-                                .GetProperty("content")
-                                .GetProperty("parts")[0]
-                                .GetProperty("text")
-                                .GetString();
-                        }
+                        var text = candidates[0]
+                           .GetProperty("content")
+                           .GetProperty("parts")[0]
+                           .GetProperty("text")
+                           .GetString();
+                        ViewBag.Result = text;
                     }
                     else
                     {
-                        answer = "Google Gemini servisine ulaşılamadı. Hata Kodu: " + response.StatusCode;
+                        ViewBag.Result = "Yapay zeka cevap veremedi.";
                     }
+                }
+                else
+                {
+                    var errorDetail = await response.Content.ReadAsStringAsync();
+                    ViewBag.Error = $"Google Hatası: {response.StatusCode} - Detay: {errorDetail}";
                 }
             }
             catch (Exception ex)
             {
-                answer = "Bir hata oluştu: " + ex.Message;
+                ViewBag.Error = "Bağlantı hatası: " + ex.Message;
             }
 
-            // Cevabı View'a taşı
-            ViewBag.AiResponse = answer;
-
-            // Form verilerini koru
-            ViewBag.Age = age;
-            ViewBag.Height = height;
+            // Verileri koru
             ViewBag.Weight = weight;
+            ViewBag.Height = height;
+            ViewBag.Goal = goal;
+            ViewBag.Age = age;
 
             return View("Index");
         }
