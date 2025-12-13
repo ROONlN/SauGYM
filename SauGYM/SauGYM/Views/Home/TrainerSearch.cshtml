@@ -1,97 +1,91 @@
 ﻿@{
-    ViewData["Title"] = "Antrenör Bul";
+    ViewData["Title"] = "Find Trainer";
 }
 
-<div class="container mt-5">
-    <div class="text-center">
-        <h2 class="mb-3">Antrenör Arama</h2>
-        <p class="text-muted">API Bağlantı Durumu: <span id="apiStatus" class="badge bg-secondary">Kontrol ediliyor...</span></p>
-    </div>
+<div class="container py-4">
+    <div class="row mb-5 text-center">
+        <div class="col-md-8 mx-auto">
+            <h1 class="display-5 fw-bold text-white">FIND YOUR TRAINER</h1>
+            <p class="text-secondary">Filter our expert staff by specialization and start your journey.</p>
 
-    <div class="row justify-content-center mb-5">
-        <div class="col-md-6">
-            <div class="input-group input-group-lg">
-                <input type="text" id="txtSearch" class="form-control" placeholder="Uzmanlık alanı (Örn: Teknik, Fitness)...">
-                <button class="btn btn-primary" type="button" id="btnSearch">
-                    <i class="bi bi-search"></i> Ara
-                </button>
+            <div class="input-group mt-4 shadow">
+                <span class="input-group-text bg-dark border-secondary text-info"><i class="bi bi-search"></i></span>
+                <input type="text" id="specializationInput" class="form-control bg-dark text-white border-secondary p-3" placeholder="Type specialization (e.g. Pilates, Fitness)...">
+                <button class="btn btn-primary px-4" type="button" onclick="loadTrainers()">SEARCH</button>
+            </div>
+            <div class="mt-2 text-start">
+                <button class="btn btn-sm btn-outline-secondary rounded-pill me-1" onclick="filterBy('Fitness')">Fitness</button>
+                <button class="btn btn-sm btn-outline-secondary rounded-pill me-1" onclick="filterBy('Pilates')">Pilates</button>
+                <button class="btn btn-sm btn-outline-secondary rounded-pill me-1" onclick="filterBy('Yoga')">Yoga</button>
+                <button class="btn btn-sm btn-outline-light rounded-pill" onclick="filterBy('')">Show All</button>
             </div>
         </div>
     </div>
 
-    <div class="row" id="trainerList">
+    <div class="row g-4" id="trainerList">
+        <div class="text-center text-muted py-5">
+            <div class="spinner-border text-info" role="status"></div>
+            <p class="mt-2">Loading trainers...</p>
+        </div>
     </div>
 </div>
 
 @section Scripts {
     <script>
         $(document).ready(function () {
-            // API Adresini dinamik olarak alıyoruz (Garanti Yöntem)
-            // Bu, "/api/TrainersApi" adresinin tam yolunu bulur.
-            var baseApiUrl = '@Url.Content("~/api/TrainersApi")';
+            loadTrainers();
 
-            // Sayfa açılınca testi başlat
-            console.log("Sayfa hazır, API adresi: " + baseApiUrl);
-            loadTrainers("");
-
-            $("#btnSearch").click(function () {
-                var keyword = $("#txtSearch").val();
-                loadTrainers(keyword);
-            });
-
-            // Enter tuşu desteği
-            $("#txtSearch").keypress(function(e){
-                if(e.which == 13) $("#btnSearch").click();
-            });
-
-            function loadTrainers(searchQuery) {
-                // Filtreleme URL'sini oluştur
-                // Eğer arama boşsa hepsini getir, doluysa filtrele
-                var requestUrl = baseApiUrl + (searchQuery ? "/Filter?specialization=" + searchQuery : "");
-
-                console.log("İstek atılıyor: " + requestUrl); // F12 Konsolunda bunu göreceksin
-
-                $.ajax({
-                    url: requestUrl,
-                    type: "GET",
-                    success: function (data) {
-                        console.log("Veri geldi:", data); // Gelen veriyi konsola bas
-
-                        $("#apiStatus").text("Bağlandı").removeClass("bg-secondary bg-danger").addClass("bg-success");
-                        $("#trainerList").empty();
-
-                        if (!data || data.length === 0) {
-                            $("#trainerList").html('<div class="col-12 text-center alert alert-warning">Kayıt bulunamadı.</div>');
-                            return;
-                        }
-
-                        $.each(data, function (index, item) {
-                            // API'den gelen verilerin isimleri küçük harfle başlar (fullName, specialization)
-                            var html = `
-                                <div class="col-md-4 mb-4">
-                                    <div class="card h-100 shadow-sm border-0">
-                                        <div class="card-body text-center">
-                                            <div class="mb-3">
-                                                 ${item.imageUrl ? `<img src="${item.imageUrl}" class="rounded-circle" style="width:100px;height:100px;object-fit:cover">` : '<div style="font-size:3rem">💪</div>'}
-                                            </div>
-                                            <h5 class="card-title text-dark fw-bold">${item.fullName}</h5>
-                                            <span class="badge bg-info text-dark mb-2">${item.specialization}</span>
-                                            <p class="card-text text-muted small"><i class="bi bi-clock"></i> ${item.workingHours}</p>
-                                            <button class="btn btn-outline-primary btn-sm w-100">Randevu Al</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            `;
-                            $("#trainerList").append(html);
-                        });
-                    },
-                    error: function (xhr, status, error) {
-                        console.error("HATA DETAYI:", xhr.responseText);
-                        $("#apiStatus").text("Hata Oluştu").removeClass("bg-secondary bg-success").addClass("bg-danger");
-                        alert("API'ye ulaşılamadı! Konsola (F12) bakınız.\nHata Kodu: " + xhr.status);
-                    }
+            // Enter tuşuna basınca arama yap
+            $("#specializationInput").on("keyup", function() {
+                var value = $(this).val().toLowerCase();
+                $("#trainerList .col-md-6").filter(function() {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
                 });
-            }
+            });
         });
+
+        function filterBy(spec) {
+            $("#specializationInput").val(spec);
+            // Tetiklemek için keyup eventini manuel çalıştır
+            var value = spec.toLowerCase();
+            $("#trainerList .col-md-6").filter(function() {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            });
+        }
+
+        function loadTrainers() {
+            $.ajax({
+                url: '/api/TrainersApi',
+                type: 'GET',
+                success: function (data) {
+                    var html = '';
+                    $.each(data, function (index, item) {
+                        // Eğer resim yoksa varsayılan ikon
+                        var imgHtml = item.imageUrl
+                            ? `<img src="${item.imageUrl}" class="rounded-circle border border-2 border-info mb-3" style="width: 80px; height: 80px; object-fit: cover;">`
+                            : `<div class="rounded-circle bg-secondary d-inline-flex align-items-center justify-content-center mb-3 border border-2 border-info" style="width: 80px; height: 80px;"><i class="bi bi-person-fill fs-2 text-white"></i></div>`;
+
+                        html += `
+                        <div class="col-md-6 col-lg-3">
+                            <div class="card h-100 text-center hover-effect">
+                                <div class="card-body p-4">
+                                    ${imgHtml}
+                                    <h5 class="card-title fw-bold text-white">${item.fullName}</h5>
+                                    <span class="badge bg-dark border border-secondary text-info mb-3">${item.specialization}</span>
+                                    <p class="card-text text-secondary small mb-3">
+                                        <i class="bi bi-clock"></i> ${item.workingHours}
+                                    </p>
+                                    <a href="/Appointments/Create" class="btn btn-sm btn-outline-light w-100">Book Now</a>
+                                </div>
+                            </div>
+                        </div>`;
+                    });
+                    $('#trainerList').html(html);
+                },
+                error: function () {
+                    $('#trainerList').html('<p class="text-danger text-center">Failed to load trainers. Please try again.</p>');
+                }
+            });
+        }
     </script>
 }
