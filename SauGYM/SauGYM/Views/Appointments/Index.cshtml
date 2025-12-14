@@ -1,59 +1,94 @@
 ﻿@model IEnumerable<SauGYM.Models.Appointment>
 
 @{
-    ViewData["Title"] = "Tüm Randevular (Admin)";
+    ViewData["Title"] = "Appointment Management";
 }
 
-<div class="container mt-5">
-    <h2 class="text-danger mb-4">👮‍♂️ Yönetim Paneli: Randevu Listesi</h2>
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold display-6 text-white">APPOINTMENT CENTER</h2>
+            <p class="text-info small">Manage member bookings and schedules.</p>
+        </div>
+        <div class="bg-dark px-4 py-2 rounded border border-secondary">
+            <span class="text-secondary small text-uppercase">Total Bookings</span>
+            <h4 class="m-0 fw-bold text-white">@Model.Count()</h4>
+        </div>
+    </div>
 
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Tarih</th>
-                <th>Üye (Müşteri)</th>
-                <th>Antrenör</th>
-                <th>Hizmet</th>
-                <th>Durum</th>
-                <th>İşlemler</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
-                <tr>
-                    <td>@item.AppointmentDate.ToString("dd.MM.yyyy HH:mm")</td>
-                    <td>
-                        @if (item.AppUser != null)
+    <div class="card shadow-lg border-0 bg-dark">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Date & Time</th>
+                            <th>Member</th>
+                            <th>Trainer</th>
+                            <th>Service</th>
+                            <th>Status</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
                         {
-                            <span>@item.AppUser.FirstName @item.AppUser.LastName</span>
-                        }
-                        else
-                        {
+                            <tr>
+                                <td>
+                                    <div class="d-flex flex-column">
+                                        <span class="fw-bold text-white">@item.AppointmentDate.ToString("dd MMM yyyy")</span>
+                                        <span class="text-info small">@item.AppointmentDate.ToString("HH:mm")</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    @if (item.AppUser != null)
+                                    {
+                                        <span class="fw-bold">@item.AppUser.FirstName @item.AppUser.LastName</span>
+                                        <div class="small text-muted" style="font-size: 0.75rem;">@item.AppUser.Email</div>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Guest</span>
+                                    }
+                                </td>
+                                <td>@item.Trainer?.FullName</td>
+                                <td><span class="badge bg-dark border border-secondary">@item.Service?.ServiceName</span></td>
+                                <td>
+                                    @if (item.Status == "Onay Bekliyor" || item.Status == "Pending")
+                                    {
+                                        <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split"></i> Pending</span>
+                                    }
+                                    else if (item.Status == "Onaylandı" || item.Status == "Approved")
+                                    {
+                                        <span class="badge bg-success"><i class="bi bi-check-lg"></i> Approved</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger"><i class="bi bi-x-lg"></i> Cancelled</span>
+                                    }
+                                </td>
+                                <td class="text-end">
+                                    <form asp-action="ChangeStatus" method="post" class="d-inline">
+                                        <input type="hidden" name="id" value="@item.AppointmentId" />
+                                        <input type="hidden" name="status" value="Approved" />
+                                        <button type="submit" class="btn btn-sm btn-outline-success" title="Approve">
+                                            <i class="bi bi-check-lg"></i>
+                                        </button>
+                                    </form>
 
-                            <span class="text-muted">Misafir</span>
+                                    <form asp-action="ChangeStatus" method="post" class="d-inline ms-1">
+                                        <input type="hidden" name="id" value="@item.AppointmentId" />
+                                        <input type="hidden" name="status" value="Cancelled" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Cancel">
+                                            <i class="bi bi-x-lg"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
                         }
-                    </td>
-                    <td>@item.Trainer?.FullName</td>
-                    <td>@item.Service?.ServiceName</td>
-                    <td>
-                        <span class="fw-bold">@item.Status</span>
-                    </td>
-                    <td>
-                        <form asp-action="ChangeStatus" method="post" class="d-inline">
-                            <input type="hidden" name="id" value="@item.AppointmentId" />
-                            <input type="hidden" name="status" value="Onaylandı" />
-                            <button type="submit" class="btn btn-sm btn-success">✅ Onayla</button>
-                        </form>
-
-                        <form asp-action="ChangeStatus" method="post" class="d-inline">
-                            <input type="hidden" name="id" value="@item.AppointmentId" />
-                            <input type="hidden" name="status" value="İptal" />
-                            <button type="submit" class="btn btn-sm btn-danger">❌ İptal</button>
-                        </form>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>

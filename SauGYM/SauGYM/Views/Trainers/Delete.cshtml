@@ -1,45 +1,39 @@
 ﻿@model SauGYM.Models.Trainer
 
 @{
-    ViewData["Title"] = "Delete";
+    ViewData["Title"] = "Delete Trainer";
 }
 
-<h1>Delete</h1>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card bg-dark border-danger shadow-lg">
+                <div class="card-header bg-danger text-white text-center py-3">
+                    <h4 class="m-0 fw-bold"><i class="bi bi-exclamation-triangle-fill"></i> DELETE CONFIRMATION</h4>
+                </div>
+                <div class="card-body text-center p-5">
+                    <div class="mb-4">
+                        <i class="bi bi-person-x-fill text-danger display-1"></i>
+                    </div>
 
-<h3>Are you sure you want to delete this?</h3>
-<div>
-    <h4>Trainer</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.FullName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.FullName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Specialization)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Specialization)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ImageUrl)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ImageUrl)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.WorkingHours)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.WorkingHours)
-        </dd>
-    </dl>
-    
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="TrainerId" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
-    </form>
+                    <h3 class="text-white mb-3">Are you sure?</h3>
+                    <p class="text-secondary mb-4">
+                        You are about to permanently delete the trainer <br>
+                        <strong class="text-white fs-5">@Model.FullName</strong>.
+                        <br>This action cannot be undone.
+                    </p>
+
+                    <div class="d-flex justify-content-center gap-3">
+                        <form asp-action="Delete">
+                            <input type="hidden" asp-for="TrainerId" />
+                            <button type="submit" class="btn btn-danger btn-lg px-5">
+                                <i class="bi bi-trash-fill"></i> YES, DELETE
+                            </button>
+                        </form>
+                        <a asp-action="Index" class="btn btn-outline-secondary btn-lg px-5">Cancel</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
