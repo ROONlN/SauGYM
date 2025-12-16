@@ -29,6 +29,33 @@
             color: #f1f5f9 !important; /* Her şeyi neredeyse beyaz yap */
         }
 
+        .form-control {
+            background-color: #334155 !important; /* Kutucuk içi Koyu Gri */
+            color: #ffffff !important; /* Yazı Rengi Beyaz */
+            border: 1px solid #475569;
+        }
+
+            .form-control:focus {
+                background-color: #1e293b !important;
+                color: #ffffff !important;
+                border-color: #06b6d4; /* Odaklanınca Mavi Çizgi */
+                box-shadow: 0 0 0 0.25rem rgba(6, 182, 212, 0.25);
+            }
+            /* Placeholder (Silik yazı) rengi */
+            .form-control::placeholder {
+                color: #94a3b8 !important;
+                opacity: 1;
+            }
+
+        /* Tablolardaki silik yazıları düzeltme */
+        .table {
+            color: #f1f5f9 !important;
+        }
+
+        .text-muted {
+            color: #cbd5e1 !important; /* Çok açık gri yap ki okunsun */
+        }
+
         /* Tablo Tasarımı */
         .table {
             --bs-table-bg: transparent;
