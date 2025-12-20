@@ -1,57 +1,82 @@
 ﻿@model IEnumerable<SauGYM.Models.Appointment>
 
 @{
-    ViewData["Title"] = "Randevularım";
+    ViewData["Title"] = "My Schedule";
 }
 
-<div class="container mt-5">
-    <h2 class="text-primary mb-4"><i class="bi bi-calendar-check"></i> Randevularım</h2>
+<div class="container py-5">
+    <div class="mb-5 border-bottom border-secondary pb-3">
+        <h1 class="display-5 fw-bold text-white">MY SCHEDULE</h1>
+        <p class="text-info">Track your upcoming workout sessions.</p>
+    </div>
 
     @if (!Model.Any())
     {
-        <div class="alert alert-warning">
-            Henüz hiç randevunuz yok. <a asp-action="Create" class="alert-link">Hemen bir randevu alın!</a>
+        <div class="card bg-dark border-secondary p-5 text-center shadow-lg">
+            <div class="card-body">
+                <i class="bi bi-calendar-x text-secondary display-1 mb-3"></i>
+                <h3 class="text-white mt-3">No Sessions Booked</h3>
+                <p class="text-secondary">You haven't booked any appointments yet. Start your journey now!</p>
+                <a asp-action="Create" class="btn btn-primary px-5 mt-3 fw-bold">BOOK A SESSION</a>
+            </div>
         </div>
     }
     else
     {
-        <table class="table table-hover table-bordered shadow-sm">
-            <thead class="table-dark">
-                <tr>
-                    <th>Tarih & Saat</th>
-                    <th>Hizmet</th>
-                    <th>Antrenör</th>
-                    <th>Durum</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
-                    <tr>
-                        <td>@item.AppointmentDate.ToString("dd MMMM yyyy HH:mm")</td>
-                        <td>@item.Service?.ServiceName</td>
-                        <td>@item.Trainer?.FullName</td>
-                        <td>
-                            @if (item.Status == "Onay Bekliyor")
-                            {
-                                <span class="badge bg-warning text-dark">Onay Bekliyor</span>
-                            }
-                            else if (item.Status == "Onaylandı")
-                            {
-                                <span class="badge bg-success">Onaylandı</span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-danger">@item.Status</span>
-                            }
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+        <div class="row g-4">
+            @foreach (var item in Model)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 bg-dark border-secondary hover-effect position-relative overflow-hidden">
+                        <div class="position-absolute start-0 top-0 h-100"
+                             style="width: 5px; background-color: @(item.Status == "Approved" || item.Status == "Onaylandı" ? "#10b981" : (item.Status == "Cancelled" || item.Status == "İptal" ? "#ef4444" : "#f59e0b"));">
+                        </div>
 
-        <a asp-action="Create" class="btn btn-primary mt-3">
-            <i class="bi bi-plus-circle"></i> Yeni Randevu Al
-        </a>
+                        <div class="card-body p-4 ps-5">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div>
+                                    <h5 class="fw-bold text-white mb-0">@item.AppointmentDate.ToString("dd MMMM")</h5>
+                                    <small class="text-info fw-bold">@item.AppointmentDate.ToString("dddd, HH:mm")</small>
+                                </div>
+                                <i class="bi bi-clock-history text-secondary fs-4"></i>
+                            </div>
+
+                            <hr class="border-secondary opacity-25">
+
+                            <div class="mb-2">
+                                <small class="text-secondary d-block">Class</small>
+                                <span class="text-white fw-bold fs-5">@item.Service?.ServiceName</span>
+                            </div>
+
+                            <div class="mb-3">
+                                <small class="text-secondary d-block">Trainer</small>
+                                <span class="text-white">@item.Trainer?.FullName</span>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mt-4">
+                                @if (item.Status == "Onay Bekliyor" || item.Status == "Pending")
+                                {
+                                    <span class="badge bg-warning text-dark px-3 py-2"><i class="bi bi-hourglass-split"></i> Pending</span>
+                                }
+                                else if (item.Status == "Onaylandı" || item.Status == "Approved")
+                                {
+                                    <span class="badge bg-success px-3 py-2"><i class="bi bi-check-circle"></i> Confirmed</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger px-3 py-2"><i class="bi bi-x-circle"></i> Cancelled</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="mt-5 text-center">
+            <a asp-action="Create" class="btn btn-outline-info px-5 py-3 fw-bold rounded-pill">
+                <i class="bi bi-plus-lg"></i> BOOK NEW SESSION
+            </a>
+        </div>
     }
 </div>

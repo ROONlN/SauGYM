@@ -16,30 +16,17 @@ namespace SauGYM.Controllers
             _context = context;
         }
 
-        // 1. Tüm hocaları getiren metod
-        // Adres: /api/TrainersApi
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Trainer>>> GetTrainers()
+        [HttpGet("{search?}")]
+        public async Task<ActionResult<IEnumerable<Trainer>>> GetTrainers(string? search)
         {
-            return await _context.Trainers.ToListAsync();
-        }
+            var query = _context.Trainers.AsQueryable();
 
-        // 2. Filtreleme yapan metod (Arama kutusu bunu kullanacak)
-        // Adres: /api/TrainersApi/Filter?specialization=Fitness
-        [HttpGet("Filter")]
-        public async Task<ActionResult<IEnumerable<Trainer>>> FilterTrainers(string specialization)
-        {
-            if (string.IsNullOrEmpty(specialization))
+            if (!string.IsNullOrEmpty(search))
             {
-                // Arama kutusu boşsa hepsini getir
-                return await _context.Trainers.ToListAsync();
+                query = query.Where(t => t.Specialization.Contains(search) || t.FullName.Contains(search));
             }
 
-            // Arama kelimesi varsa filtrele (LINQ Sorgusu)
-            var trainers = await _context.Trainers
-                                         .Where(t => t.Specialization.Contains(specialization))
-                                         .ToListAsync();
-            return trainers;
+            return await query.ToListAsync();
         }
     }
 }

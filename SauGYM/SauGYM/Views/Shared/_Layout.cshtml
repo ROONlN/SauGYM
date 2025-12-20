@@ -10,11 +10,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
 
     <style>
-        /* --- THEME: ELECTRIC BLUE & SLATE --- */
         :root {
-            --primary-bg: #0f172a; /* Çok koyu arduvaz grisi */
-            --card-bg: #1e293b; /* Kart rengi */
-            --accent: #06b6d4; /* Elektrik Mavisi (Cyan) */
+            --primary-bg: #0f172a;
+            --card-bg: #1e293b;
+            --accent: #06b6d4; 
             --text-main: #f8fafc;
         }
 
@@ -26,37 +25,35 @@
         }
 
         body, p, h1, h2, h3, h4, h5, h6, td, th, label, span {
-            color: #f1f5f9 !important; /* Her şeyi neredeyse beyaz yap */
+            color: #f1f5f9 !important; 
         }
 
         .form-control {
-            background-color: #334155 !important; /* Kutucuk içi Koyu Gri */
-            color: #ffffff !important; /* Yazı Rengi Beyaz */
+            background-color: #334155 !important; 
+            color: #ffffff !important; 
             border: 1px solid #475569;
         }
 
             .form-control:focus {
                 background-color: #1e293b !important;
                 color: #ffffff !important;
-                border-color: #06b6d4; /* Odaklanınca Mavi Çizgi */
+                border-color: #06b6d4; 
                 box-shadow: 0 0 0 0.25rem rgba(6, 182, 212, 0.25);
             }
-            /* Placeholder (Silik yazı) rengi */
             .form-control::placeholder {
                 color: #94a3b8 !important;
                 opacity: 1;
             }
 
-        /* Tablolardaki silik yazıları düzeltme */
         .table {
             color: #f1f5f9 !important;
         }
 
         .text-muted {
-            color: #cbd5e1 !important; /* Çok açık gri yap ki okunsun */
+            color: #cbd5e1 !important; 
         }
 
-        /* Tablo Tasarımı */
+        
         .table {
             --bs-table-bg: transparent;
             --bs-table-color: #f1f5f9;
@@ -64,8 +61,8 @@
         }
 
             .table thead th {
-                background-color: #0f172a; /* Başlık Koyu Lacivert */
-                color: #06b6d4 !important; /* Başlık Yazısı Neon Mavi */
+                background-color: #0f172a; 
+                color: #06b6d4 !important;
                 text-transform: uppercase;
                 font-size: 0.85rem;
                 letter-spacing: 1px;
@@ -80,20 +77,49 @@
             }
 
         .table-hover tbody tr:hover {
-            background-color: rgba(6, 182, 212, 0.05); /* Üzerine gelince çok hafif mavi */
+            background-color: rgba(6, 182, 212, 0.05); 
         }
 
-        /* Silik yazıları düzeltme */
+    
         .text-muted {
-            color: #94a3b8 !important; /* Daha açık gri yap */
+            color: #94a3b8 !important; 
         }
 
-        /* Navbar Design */
+        
         .navbar {
             background: rgba(30, 41, 59, 0.95) !important;
             backdrop-filter: blur(10px);
             border-bottom: 1px solid rgba(6, 182, 212, 0.3);
             padding: 15px 0;
+        }
+
+        .form-control, .form-select {
+            background-color: #334155 !important;
+            color: #ffffff !important; 
+            border: 1px solid #475569;
+        }
+
+            .form-control:focus, .form-select:focus {
+                background-color: #1e293b !important;
+                color: #06b6d4 !important; 
+                border-color: #06b6d4;
+                box-shadow: 0 0 0 0.25rem rgba(6, 182, 212, 0.25);
+            }
+
+         
+            .form-control::placeholder {
+                color: #94a3b8 !important;
+                opacity: 0.8;
+            }
+
+   
+        .table {
+            color: #f1f5f9 !important;
+        }
+
+        
+        a {
+            text-decoration: none;
         }
 
         .navbar-brand {
@@ -118,7 +144,7 @@
                 text-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
             }
 
-        /* Cards Redesign */
+        
         .card {
             background-color: var(--card-bg);
             border: 1px solid rgba(255, 255, 255, 0.05);
@@ -133,7 +159,7 @@
                 border-color: var(--accent);
             }
 
-        /* Buttons */
+        
         .btn-primary {
             background: linear-gradient(45deg, #0891b2, #06b6d4);
             border: none;
@@ -159,7 +185,7 @@
                 color: #000;
             }
 
-        /* Footer */
+        
         footer {
             border-top: 1px solid rgba(255, 255, 255, 0.05);
             margin-top: 50px;

@@ -21,13 +21,12 @@ namespace SauGYM.Controllers
             _context = context;
         }
 
-        // GET: Trainers
+
         public async Task<IActionResult> Index()
         {
             return View(await _context.Trainers.ToListAsync());
         }
 
-        // GET: Trainers/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -45,15 +44,13 @@ namespace SauGYM.Controllers
             return View(trainer);
         }
 
-        // GET: Trainers/Create
+
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Trainers/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("TrainerId,FullName,Specialization,ImageUrl,WorkingHours")] Trainer trainer)
@@ -68,7 +65,7 @@ namespace SauGYM.Controllers
             return View(trainer);
         }
 
-        // GET: Trainers/Edit/5
+
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -84,9 +81,6 @@ namespace SauGYM.Controllers
             return View(trainer);
         }
 
-        // POST: Trainers/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("TrainerId,FullName,Specialization,ImageUrl,WorkingHours")] Trainer trainer)
@@ -119,7 +113,6 @@ namespace SauGYM.Controllers
             return View(trainer);
         }
 
-        // GET: Trainers/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -137,7 +130,6 @@ namespace SauGYM.Controllers
             return View(trainer);
         }
 
-        // POST: Trainers/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)

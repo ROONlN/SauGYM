@@ -11,7 +11,8 @@
             <div class="input-group mt-4 shadow">
                 <span class="input-group-text bg-dark border-secondary text-info"><i class="bi bi-search"></i></span>
                 <input type="text" id="specializationInput" class="form-control bg-dark text-white border-secondary p-3" placeholder="Type specialization (e.g. Pilates, Fitness)...">
-                <button class="btn btn-primary px-4" type="button" onclick="loadTrainers()">SEARCH</button>
+
+                <button class="btn btn-primary px-4" type="button" onclick="searchManually()">SEARCH</button>
             </div>
             <div class="mt-2 text-start">
                 <button class="btn btn-sm btn-outline-secondary rounded-pill me-1" onclick="filterBy('Fitness')">Fitness</button>
@@ -33,57 +34,65 @@
 @section Scripts {
     <script>
         $(document).ready(function () {
-            loadTrainers();
 
-            // Enter tuşuna basınca arama yap
-            $("#specializationInput").on("keyup", function() {
-                var value = $(this).val().toLowerCase();
-                $("#trainerList .col-md-6").filter(function() {
-                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-                });
-            });
+            loadTrainers("");
+
+
+            window.filterBy = function(spec) {
+                $("#specializationInput").val(spec);
+                loadTrainers(spec);
+            }
+
+
+            window.searchManually = function() {
+                var val = $("#specializationInput").val();
+                loadTrainers(val);
+            }
         });
 
-        function filterBy(spec) {
-            $("#specializationInput").val(spec);
-            // Tetiklemek için keyup eventini manuel çalıştır
-            var value = spec.toLowerCase();
-            $("#trainerList .col-md-6").filter(function() {
-                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-            });
-        }
+        function loadTrainers(searchTerm) {
+            $('#trainerList').html('<div class="text-center py-5"><div class="spinner-border text-info" role="status"></div></div>');
 
-        function loadTrainers() {
+
+            var apiUrl = '/api/TrainersApi';
+
+            if (searchTerm && searchTerm.trim() !== "") {
+                apiUrl += '/' + encodeURIComponent(searchTerm);
+            }
+
             $.ajax({
-                url: '/api/TrainersApi',
+                url: apiUrl,
                 type: 'GET',
                 success: function (data) {
                     var html = '';
-                    $.each(data, function (index, item) {
-                        // Eğer resim yoksa varsayılan ikon
-                        var imgHtml = item.imageUrl
-                            ? `<img src="${item.imageUrl}" class="rounded-circle border border-2 border-info mb-3" style="width: 80px; height: 80px; object-fit: cover;">`
-                            : `<div class="rounded-circle bg-secondary d-inline-flex align-items-center justify-content-center mb-3 border border-2 border-info" style="width: 80px; height: 80px;"><i class="bi bi-person-fill fs-2 text-white"></i></div>`;
+                    if(data.length === 0) {
+                        html = '<div class="col-12 text-center text-muted"><p>No trainers found matching your criteria.</p></div>';
+                    } else {
+                        $.each(data, function (index, item) {
+                            var imgHtml = item.imageUrl
+                                ? `<img src="${item.imageUrl}" class="rounded-circle border border-2 border-info mb-3" style="width: 80px; height: 80px; object-fit: cover;">`
+                                : `<div class="rounded-circle bg-secondary d-inline-flex align-items-center justify-content-center mb-3 border border-2 border-info" style="width: 80px; height: 80px;"><i class="bi bi-person-fill fs-2 text-white"></i></div>`;
 
-                        html += `
-                        <div class="col-md-6 col-lg-3">
-                            <div class="card h-100 text-center hover-effect">
-                                <div class="card-body p-4">
-                                    ${imgHtml}
-                                    <h5 class="card-title fw-bold text-white">${item.fullName}</h5>
-                                    <span class="badge bg-dark border border-secondary text-info mb-3">${item.specialization}</span>
-                                    <p class="card-text text-secondary small mb-3">
-                                        <i class="bi bi-clock"></i> ${item.workingHours}
-                                    </p>
-                                    <a href="/Appointments/Create" class="btn btn-sm btn-outline-light w-100">Book Now</a>
+                            html += `
+                            <div class="col-md-6 col-lg-3">
+                                <div class="card h-100 text-center hover-effect bg-dark border-secondary">
+                                    <div class="card-body p-4">
+                                        ${imgHtml}
+                                        <h5 class="card-title fw-bold text-white">${item.fullName}</h5>
+                                        <span class="badge bg-info text-dark mb-3">${item.specialization}</span>
+                                        <p class="card-text text-secondary small mb-3">
+                                            <i class="bi bi-clock"></i> ${item.workingHours}
+                                        </p>
+                                        <a href="/Appointments/Create" class="btn btn-sm btn-outline-light w-100">Book Now</a>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>`;
-                    });
+                            </div>`;
+                        });
+                    }
                     $('#trainerList').html(html);
                 },
                 error: function () {
-                    $('#trainerList').html('<p class="text-danger text-center">Failed to load trainers. Please try again.</p>');
+                    $('#trainerList').html('<p class="text-danger text-center">Failed to load trainers via API.</p>');
                 }
             });
         }

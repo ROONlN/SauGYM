@@ -20,9 +20,6 @@ namespace SauGYM.Controllers
             return View();
         }
 
-        // =======================================================
-        // FEATURE 1: IMAGE GENERATION (Pollinations - English)
-        // =======================================================
         [HttpPost]
         public async Task<IActionResult> GenerateTransformationImage(string goal, string gender)
         {
@@ -55,9 +52,6 @@ namespace SauGYM.Controllers
             return View("Index");
         }
 
-        // =======================================================
-        // FEATURE 2: FITNESS PLAN (Local Expert System - English)
-        // =======================================================
         [HttpPost]
         public IActionResult GetFitnessPlan(int weight, int height, string goal, int age)
         {
@@ -66,7 +60,6 @@ namespace SauGYM.Controllers
 
             string status, diet, workout;
 
-            // 1. BMI Analysis
             if (bmi < 18.5)
             {
                 status = "Underweight";
@@ -87,13 +80,9 @@ namespace SauGYM.Controllers
                 status = "Obese";
                 diet = "- Create a calorie deficit immediately.\n- Eliminate processed foods and soda.\n- Focus on vegetables and lean meat.";
             }
-
-            // 2. Goal Analysis
             if (goal.Contains("Muscle")) workout = "- 4 days/week Hypertrophy Training.\n- Hit each muscle group twice a week.\n- Rest 90sec between sets.";
             else if (goal.Contains("Weight")) workout = "- 3 days/week HIIT Cardio.\n- 30min morning walk (fasted).\n- Full Body compound movements.";
             else workout = "- 3 days/week Pilates/Yoga.\n- Regular nature walks.\n- Core strengthening exercises.";
-
-            // 3. Result Text
             string resultText = $"Hello! Here is your AI analysis for age {age}:\n\n" +
                                 $"📊 **Body Status:** {status} (BMI: {bmi:F1})\n\n" +
                                 $"🍎 **Nutrition Plan:**\n{diet}\n\n" +
